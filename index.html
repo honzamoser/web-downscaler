@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Web Video Compressor | Downscaler</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				darkMode: 'media',
+				theme: {
+					extend: {
+						colors: {
+							'zinc-750': '#3f3f46',
+						}
+					}
+				}
+			}
+		</script>
+		<script type="module" src="./compress.ts"></script>
+	</head>
+
+	<body class="min-h-screen flex flex-col items-center py-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-200 px-4">
+		<!-- Header -->
+		<div class="text-center mb-8">
+			<h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+				🎬 Web Video Compressor
+			</h1>
+			<p class="max-w-2xl text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+				Compress your videos to under <span class="font-semibold text-blue-600 dark:text-blue-400">8MB</span> with smart bitrate optimization. 
+				Perfect for web uploads, social media, or file sharing.
+			</p>
+			
+			<!-- Supported formats -->
+			<div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+				<p class="text-sm text-blue-700 dark:text-blue-300">
+					📋 <strong>Supported formats:</strong> MP4, AVI, MOV, MKV, WebM, WMV, FLV, M4V
+				</p>
+			</div>
+		</div>
+
+		<!-- Compression Presets -->
+		<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6 w-full max-w-md">
+			<h3 class="text-lg font-semibold text-center mb-4 text-gray-800 dark:text-gray-200">⚙️ Compression Settings</h3>
+			<div class="grid grid-cols-3 gap-2" id="quality-presets">
+				<button class="preset-btn px-3 py-2 text-xs rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors" data-preset="low">
+					🔥 Max<br><span class="text-xs opacity-75">2-3MB</span>
+				</button>
+				<button class="preset-btn px-3 py-2 text-xs rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors active" data-preset="medium">
+					⚡ Balanced<br><span class="text-xs opacity-75">6-7MB</span>
+				</button>
+				<button class="preset-btn px-3 py-2 text-xs rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors" data-preset="high">
+					💎 Quality<br><span class="text-xs opacity-75">7-8MB</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Upload Section -->
+		<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-6 w-full max-w-md">
+			<div class="flex flex-col items-center gap-4">
+				<div class="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-blue-400 transition-colors duration-200" id="drop-zone">
+					<div class="text-4xl mb-3">📁</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Drag & drop your video file here</p>
+					
+					<div class="flex flex-col sm:flex-row gap-3 w-full">
+						<button id="select-file" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+							📂 Select File
+						</button>
+						<button id="load-url" class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-3 px-6 rounded-xl transition-colors duration-200">
+							🔗 Load URL
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- File Info & Size Preview -->
+		<div class="w-full max-w-md" id="file-info-section" style="display: none;">
+			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
+				<div class="flex items-center justify-between">
+					<div class="flex-1">
+						<p class="text-sm font-medium text-gray-800 dark:text-gray-200" id="file-name"></p>
+						<div class="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
+							<span id="original-size">📊 Size: -</span>
+							<span id="file-duration">⏱️ Duration: -</span>
+							<span id="file-resolution">📐 Resolution: -</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<hr class="w-full max-w-md my-6 border-gray-300 dark:border-gray-600" style="display: none;">
+
+		<!-- Error Display -->
+		<div class="w-full max-w-md">
+			<div id="error-element" class="text-red-500 dark:text-red-400 text-center bg-red-50 dark:bg-red-900/20 rounded-lg p-3 mb-4" style="display: none;">
+				<div class="flex items-center justify-center gap-2 mb-1">
+					<span class="text-lg">❌</span>
+					<span class="font-medium">Error</span>
+				</div>
+				<p class="text-sm" id="error-message"></p>
+			</div>
+		</div>
+
+		<!-- Progress Section -->
+		<div class="w-full max-w-md mb-6">
+			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6" id="progress-container" style="display: none;">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-sm font-medium text-gray-700 dark:text-gray-300">🔄 Compressing...</span>
+					<span class="text-sm text-gray-500 dark:text-gray-400" id="progress-percentage">0%</span>
+				</div>
+				
+				<div class="w-full h-3 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden mb-3" id="progress-bar-container">
+					<div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-0 transition-all duration-300 ease-out" id="progress-bar"></div>
+				</div>
+				
+				<div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+					<span id="speedometer">Speed: -</span>
+					<span id="eta">ETA: -</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Result Video -->
+		<div class="w-full max-w-2xl">
+			<video controls class="w-full rounded-xl shadow-2xl" style="display: none;"></video>
+			<div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mt-4" id="success-info" style="display: none;">
+				<div class="flex items-center justify-center gap-2 mb-3">
+					<span class="text-green-600 dark:text-green-400 text-xl">✅</span>
+					<span class="font-medium text-green-800 dark:text-green-300">Compression Complete!</span>
+				</div>
+				
+				<!-- Before/After Comparison -->
+				<div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+					<div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
+						<div class="text-gray-500 dark:text-gray-400 mb-1">📥 Original</div>
+						<div class="font-semibold text-gray-800 dark:text-gray-200" id="original-file-size">-</div>
+					</div>
+					<div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
+						<div class="text-gray-500 dark:text-gray-400 mb-1">📤 Compressed</div>
+						<div class="font-semibold text-green-600 dark:text-green-400" id="compressed-file-size">-</div>
+					</div>
+				</div>
+				
+				<div class="text-center mb-4">
+					<div class="text-lg font-bold text-green-600 dark:text-green-400" id="compression-facts">-% of original size</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">Space saved: <span id="space-saved">-</span></div>
+				</div>
+				
+				<button id="download-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+					💾 Download Compressed Video
+				</button>
+			</div>
+		</div>
+	</body>
+</html>
